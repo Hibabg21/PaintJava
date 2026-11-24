@@ -107,7 +107,14 @@ L'application intègre un système de gestion des opérations permettant de modi
 - **Delete selection :** supprime la sélection.
 - **Crop to selection :** recadre le dessin selon la zone sélectionnée.
 
-L'historique est limité à un nombre défini d'états afin de maîtriser l'utilisation de la mémoire.
+### Historique (Undo/Redo)
+- Chaque action de dessin sauvegarde une copie
+  de l'état précédent dans la pile Undo.
+- Toute nouvelle action vide la pile Redo.
+- L'historique Undo est limité à 30 états.
+  Lorsque cette limite est dépassée, l'état
+  le plus ancien est supprimé.
+
 
 ### 2.7. Importation et exportation
 
@@ -120,11 +127,19 @@ L'application permet de gérer les projets et les images à travers différentes
 - Exportation du dessin au format PNG.
 - Exportation du dessin au format JPG.
 
-### 2.8. Sauvegarde automatique
+### 2.8. Sauvegarde automatique et restauration
 
-L'application dispose d'un mécanisme de sauvegarde automatique permettant de conserver périodiquement l'état du dessin.
+L'application enregistre automatiquement l'état du dessin toutes les 30 secondes dans le fichier `autosave.paint`, situé dans le répertoire d'exécution.
 
-Le fichier `autosave.paint` est utilisé pour stocker les données de sauvegarde automatique etconserver périodiquement une copie de l'état du projet dans le fichier autosave.paint.
+Au démarrage, si ce fichier existe, une boîte de dialogue **« Restaurer ? »** propose de recharger le dernier dessin sauvegardé :
+
+- **Oui** : le dessin est restauré dans la zone de travail.
+- **Non** : l'application démarre avec un nouveau dessin vierge.
+
+Si le fichier est illisible ou corrompu, un message d'erreur est affiché et l'application démarre normalement.
+
+> **Remarque :** la sauvegarde automatique ne remplace pas l'enregistrement manuel (`Ctrl + S`). Le fichier `autosave.paint` est écrasé à chaque cycle et n'est pas versionné dans Git.
+
 ### 2.9. Communication réseau
 
 L'application intègre une architecture client-serveur basée sur les sockets Java.

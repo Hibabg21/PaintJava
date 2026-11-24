@@ -524,6 +524,28 @@ public class PaintApp extends JFrame implements ZoneDessin.Ecouteur, BoutonCoule
     public static void main(String[] args) {
         try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); } catch (Exception e) { }
         final Locale loc = Locale.getDefault().getLanguage().equals("fr") ? Locale.FRENCH : Locale.ENGLISH;
-        SwingUtilities.invokeLater(() -> new PaintApp(loc, null).setVisible(true));
-    }
+        SwingUtilities.invokeLater(() -> {
+            BufferedImage restauree = proposerRestauration(loc);
+            new PaintApp(loc, restauree).setVisible(true);});
+        }
+        /** Si autosave.paint existe, propose de restaurer le dessin. Retourne null sinon. */
+    private static BufferedImage proposerRestauration(Locale loc) {
+         File f = new File("autosave.paint");
+         if (!f.exists() || f.length() == 0) return null;
+         boolean fr = loc.getLanguage().equals("fr");
+         int rep = JOptionPane.showConfirmDialog(null,
+            fr ? "Une sauvegarde automatique a été trouvée.\nVoulez-vous restaurer le dessin ?"
+            : "An autosave was found.\nDo you want to restore the drawing?",
+            fr ? "Restaurer ?" : "Restore?",
+            JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+            if (rep != JOptionPane.YES_OPTION) return null;
+             try (ObjectInputStream in = new ObjectInputStream(new BufferedInputStream(new FileInputStream(f)))) {
+                return ((ProjetPaint) in.readObject()).image();
+                 } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(null, ex.getMessage(),
+                    fr ? "Erreur" : "Error", JOptionPane.ERROR_MESSAGE);
+                    return null;
+                 }
+                
 }
+    }
